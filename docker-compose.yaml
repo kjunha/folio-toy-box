@@ -1,0 +1,56 @@
+version: "3"
+services:
+  client:
+    build: ./client
+    tty: true
+    networks:
+      optimus_net:
+        ipv4_address: 172.19.0.10
+    working_dir: /usr/src/app
+    volumes:
+      - ./client:/usr/src/app
+      - /usr/src/app/node_modules/
+    ports:
+      - 80:8080
+    container_name: folio-portal
+  server:
+    build: ./server
+    tty: true
+    restart: always
+    networks:
+      optimus_net:
+        ipv4_address: 172.19.0.20
+    working_dir: /usr/src/app
+    volumes:
+      - ./server:/usr/src/app
+      - /usr/src/app/node_modules/
+    ports:
+      - 3000:3000
+    container_name: express-server
+    depends_on:
+      - db_mysql
+  db_mysql:
+    image: mysql:latest
+    restart: always
+    tty: true
+    networks:
+      optimus_net:
+        ipv4_address: 172.19.0.30
+    command: --default-authentication-plugin=mysql_native_password
+    env_file:
+      - .env
+    expose:
+      - 3307
+    ports:
+      - 3307:3307
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    container_name: mysql_db
+
+networks:
+  optimus_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/24
