@@ -16,6 +16,7 @@
                       type="text"
                       class="form-control"
                       placeholder="First name"
+                      v-model="userinfo.fname"
                     />
                   </div>
                   <div class="col">
@@ -23,6 +24,7 @@
                       type="text"
                       class="form-control"
                       placeholder="Last name"
+                      v-model="userinfo.lname"
                     />
                   </div>
                 </div>
@@ -34,6 +36,7 @@
                     id="email"
                     aria-describedby="emailHelp"
                     placeholder="Enter email"
+                    v-model="userinfo.email"
                   />
                 </div>
               </div>
@@ -44,6 +47,7 @@
                   class="form-control"
                   id="password"
                   placeholder="Password"
+                  v-model="userinfo.pwd"
                 />
               </div>
               <div class="form-group">
@@ -53,6 +57,7 @@
                   class="form-control"
                   id="conrifm"
                   placeholder="Confirmation"
+                  v-model="pwdConfirm"
                 />
               </div>
               <div class="form-group">
@@ -73,7 +78,11 @@
                 </div>
               </div>
               <div class="form-group text-center">
-                <button class="button special btn-block mb-3">
+                <button
+                  class="button special btn-block mb-3"
+                  type="button"
+                  @click="registerUser()"
+                >
                   Create Account
                 </button>
               </div>
@@ -112,7 +121,35 @@
 
 <script>
 export default {
-  layout: "common"
+  layout: "common",
+  data() {
+    return {
+      base_url: process.env.BASE_URL,
+      userinfo: {
+        fname: "",
+        lname: "",
+        email: "",
+        pwd: ""
+      },
+      pwdConfirm: ""
+    };
+  },
+  methods: {
+    registerUser() {
+      if (this.userinfo.pwd !== this.pwdConfirm) {
+        alert("비밀번호가 다릅니다.");
+        return;
+      }
+      this.$axios
+        .post(`${this.base_url}/users/new`, this.userinfo)
+        .then(() => {
+          alert("등록되었습니다.");
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+  }
 };
 </script>
 
